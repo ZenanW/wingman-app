@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-na
 import Slider from '@react-native-community/slider';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 const prompts = {
     silly: [
@@ -40,24 +41,38 @@ export default function HomeScreen({ navigation }) {
     };
 
     const savePrompt = async () => {
-        try {
+      try {
         const stored = await AsyncStorage.getItem('saved_prompts');
         const current = stored ? JSON.parse(stored) : [];
         if (!current.includes(prompt)) {
-            const updated = [...current, prompt];
-            await AsyncStorage.setItem('saved_prompts', JSON.stringify(updated));
-            alert('Saved!');
+          const updated = [...current, prompt];
+          await AsyncStorage.setItem('saved_prompts', JSON.stringify(updated));
+          Toast.show({
+            type: 'success',
+            text1: 'Saved!',
+            position: 'top',
+            visibilityTime: 1500,
+          });
         } else {
-            alert('Already saved!');
+          Toast.show({
+            type: 'info',
+            text1: '💾 Already saved',
+            position: 'top',
+            visibilityTime: 1500,
+          });
         }
-        } catch (err) {
+      } catch (err) {
         console.error('Save error:', err);
-        }
+        Toast.show({
+          type: 'error',
+          text1: '❌ Error saving prompt',
+        });
+      }
     };
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.logo}>WINGMAN 👔</Text>
+            <Text style={styles.logo}>WINGMAN ❤️</Text>
 
             <View style={styles.promptBox}>
             <Text style={styles.promptText}>{prompt}</Text>
@@ -86,20 +101,28 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
             </View>
 
-            <TouchableOpacity onPress={() => navigation.navigate('Saved')} style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>📂 View Saved</Text>
-            </TouchableOpacity>
-
             <StatusBar style="light" />
+
+            <Toast config={{
+              success: ({ text1 }) => (
+                <View style={{
+                  backgroundColor: '#ec008c',
+                  padding: 14,
+                  borderRadius: 16,
+                  marginBottom: 20,
+                }}>
+                  <Text style={{ color: 'white', fontWeight: '600' }}>{text1}</Text>
+                </View>
+              ),
+            }} />
         </SafeAreaView>
     );
-
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0e0c1f',
+    backgroundColor: '#fdfdfd', // light background instead of dark
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -107,25 +130,30 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#c084fc',
+    color: '#ec008c', // bright pink
     marginBottom: 30,
   },
   promptBox: {
-    backgroundColor: '#1e1b33',
+    backgroundColor: '#ffffff',
     paddingVertical: 24,
     paddingHorizontal: 18,
     borderRadius: 16,
     marginBottom: 30,
     maxWidth: 320,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 2,
   },
   promptText: {
     fontSize: 18,
-    color: '#fff',
+    color: '#333', // dark grey
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 26,
   },
   sliderLabel: {
-    color: '#aaa',
+    color: '#555',
     marginTop: 10,
     marginBottom: 6,
     fontSize: 14,
@@ -136,10 +164,10 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   primaryButton: {
-    backgroundColor: '#c084fc',
+    backgroundColor: '#ec008c', // bold pink
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 30,
     alignItems: 'center',
     minWidth: 110,
   },
@@ -149,15 +177,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   secondaryButton: {
-    backgroundColor: '#292929',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 12,
-    marginTop: 20,
+    backgroundColor: '#3c1aff', // deep indigo start of gradient
+    paddingVertical: 14,
+    paddingHorizontal: 35,
+    borderRadius: 30,
+    marginTop: 30,
   },
   secondaryButtonText: {
-    color: '#eee',
-    fontWeight: '600',
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
   },
 });
+
 
